@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  snyk:
+  app-security:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,5 +36,23 @@ jobs:
 
       - name: Snyk Code
         run: snyk code test --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  container-security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build container image
+        run: docker build -t acme-orders:ci .
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Snyk Container
+        run: snyk container test acme-orders:ci --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
