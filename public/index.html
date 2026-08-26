@@ -36,6 +36,52 @@
       </form>
     </section>
 
+    <section class="create-panel" aria-labelledby="create-heading">
+      <div>
+        <h2 id="create-heading">Create order</h2>
+        <p>Open a separate workspace to add an order.</p>
+      </div>
+      <button id="open-create-dialog" type="button">Create Order</button>
+    </section>
+
+    <dialog id="create-dialog" aria-labelledby="create-dialog-heading">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">New record</p>
+          <h2 id="create-dialog-heading">Create order</h2>
+        </div>
+        <button id="close-create-dialog" class="close-button" type="button" aria-label="Close create order dialog">&times;</button>
+      </div>
+      <form id="create-form" class="create-form">
+        <div class="form-grid">
+          <div class="field">
+            <label for="new-customer-name">Customer Name</label>
+            <input id="new-customer-name" name="customerName" type="text" required>
+          </div>
+          <div class="field">
+            <label for="new-status">Status</label>
+            <input id="new-status" name="status" type="text" placeholder="e.g. pending" required>
+          </div>
+          <div class="field">
+            <label for="new-total">Total</label>
+            <input id="new-total" name="total" type="number" min="0" step="0.01" required>
+          </div>
+          <div class="field">
+            <label for="new-created-at">Created At</label>
+            <input id="new-created-at" name="createdAt" type="datetime-local" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="new-notes">Optional Notes</label>
+          <textarea id="new-notes" name="notes" rows="2" placeholder="Add a note"></textarea>
+        </div>
+        <div class="dialog-actions">
+          <button id="cancel-create-dialog" class="secondary-button" type="button">Cancel</button>
+          <button type="submit">Create Order</button>
+        </div>
+      </form>
+    </dialog>
+
     <section class="import-panel" aria-labelledby="import-heading">
       <div>
         <h2 id="import-heading">Import partner order</h2>

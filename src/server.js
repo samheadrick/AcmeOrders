@@ -34,6 +34,31 @@ app.get('/orders/search', (request, response) => {
   });
 });
 
+app.post('/orders', (request, response) => {
+  const { customerName, status, total, createdAt, notes } = request.body || {};
+  const numericTotal = typeof total === 'number' ? total : Number(total);
+  const hasRequiredFields = typeof customerName === 'string' && customerName.trim() &&
+    typeof status === 'string' && status.trim() &&
+    total !== '' && Number.isFinite(numericTotal) &&
+    typeof createdAt === 'string' && !Number.isNaN(Date.parse(createdAt));
+
+  if (!hasRequiredFields || (notes !== undefined && typeof notes !== 'string')) {
+    return response.status(400).json({
+      error: 'customerName, status, total, and a valid createdAt are required; notes must be a string'
+    });
+  }
+
+  const order = createOrder({
+    customerName: customerName.trim(),
+    status: status.trim(),
+    total: numericTotal,
+    createdAt,
+    notes: notes ? notes.trim() : ''
+  });
+
+  return response.status(201).json({ data: order });
+});
+
 app.post('/orders/import', async (request, response) => {
   const { url } = request.body || {};
   let partnerUrl;

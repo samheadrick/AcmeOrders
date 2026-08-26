@@ -11,14 +11,58 @@ test('serves the browser frontend and its assets', async () => {
   assert.equal(page.status, 200);
   assert.match(page.text, /<title>Acme Orders<\/title>/);
   assert.match(page.text, /id="search-form"/);
+  assert.match(page.text, /id="create-form"/);
+  assert.match(page.text, /id="create-dialog"/);
+  assert.match(page.text, /Create Order/);
   assert.match(page.text, /Order ID/);
   assert.equal(stylesheet.status, 200);
   assert.match(stylesheet.text, /--accent/);
   assert.equal(script.status, 200);
   assert.match(script.text, /\/orders\/search/);
   assert.match(script.text, /\/orders\/import/);
+  assert.match(script.text, /fetch\('\/orders'/);
+  assert.match(script.text, /loadOrders\(activeSearch\)/);
+  assert.match(script.text, /createDialog\.showModal\(\)/);
   assert.match(script.text, /formatNote/);
   assert.match(script.text, /noopener noreferrer/);
+});
+
+test('creates an order with a generated ID and persists it', async () => {
+  const customerName = `New Customer ${Date.now()}`;
+  const result = await request(app)
+    .post('/orders')
+    .send({
+      customerName,
+      status: 'pending',
+      total: 18.75,
+      createdAt: '2026-08-26T15:00:00.000Z',
+      notes: 'Created from the UI'
+    });
+
+  assert.equal(result.status, 201);
+  assert.match(result.body.data.id, /^ord-/);
+  assert.equal(result.body.data.customerName, customerName);
+  assert.equal(result.body.data.notes, 'Created from the UI');
+
+  const search = await request(app).get(`/orders/search?customerName=${encodeURIComponent(customerName)}`);
+  assert.equal(search.body.count, 1);
+  assert.equal(search.body.data[0].id, result.body.data.id);
+});
+
+test('rejects invalid create-order fields', async () => {
+  const result = await request(app)
+    .post('/orders')
+    .send({ customerName: 'Invalid Order', status: 'pending', total: 'not-a-number', createdAt: 'not-a-date' });
+
+  assert.equal(result.status, 400);
+});
+
+test('rejects an empty order total', async () => {
+  const result = await request(app)
+    .post('/orders')
+    .send({ customerName: 'Blank Total', status: 'pending', total: '', createdAt: '2026-08-26T15:00:00.000Z' });
+
+  assert.equal(result.status, 400);
 });
 
 test('imports and persists a valid partner order', async () => {

@@ -25,6 +25,20 @@ The SQLite database is created at `data/orders.db` and is seeded with sample ord
 
 `customerName` is required. Missing or blank values return `400`.
 
+`POST /orders` creates an order with a server-generated ID:
+
+```json
+{
+  "customerName": "Ada Lovelace",
+  "status": "pending",
+  "total": 49.95,
+  "createdAt": "2026-08-26T15:00:00.000Z",
+  "notes": "Optional note"
+}
+```
+
+Customer name, status, numeric total, and valid creation date are required. Notes are optional.
+
 `PATCH /orders/:orderId/note` updates an order note with a JSON body:
 
 ```json

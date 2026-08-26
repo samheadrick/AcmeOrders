@@ -1,6 +1,11 @@
 const form = document.querySelector('#search-form');
 const importForm = document.querySelector('#import-form');
 const orderUrlInput = document.querySelector('#order-url');
+const createForm = document.querySelector('#create-form');
+const createDialog = document.querySelector('#create-dialog');
+const openCreateDialog = document.querySelector('#open-create-dialog');
+const closeCreateDialog = document.querySelector('#close-create-dialog');
+const cancelCreateDialog = document.querySelector('#cancel-create-dialog');
 const customerNameInput = document.querySelector('#customer-name');
 const ordersBody = document.querySelector('#orders-body');
 const message = document.querySelector('#message');
@@ -99,13 +104,7 @@ async function saveNote(event, orderId, noteInput, saveButton) {
   }
 }
 
-async function searchOrders(event) {
-  event.preventDefault();
-  const customerName = customerNameInput.value.trim();
-  if (!customerName) return;
-
-  setMessage('Searching orders...');
-  resultCount.textContent = 'Searching';
+async function loadOrders(customerName) {
   try {
     const response = await fetch(`/orders/search?customerName=${encodeURIComponent(customerName)}`);
     const result = await response.json();
@@ -117,6 +116,48 @@ async function searchOrders(event) {
   } catch (error) {
     ordersBody.replaceChildren();
     resultCount.textContent = 'Search failed';
+    setMessage(error.message, true);
+  }
+}
+
+async function searchOrders(event) {
+  event.preventDefault();
+  const customerName = customerNameInput.value.trim();
+  if (!customerName) return;
+
+  setMessage('Searching orders...');
+  resultCount.textContent = 'Searching';
+  await loadOrders(customerName);
+}
+
+async function createOrder(event) {
+  event.preventDefault();
+  const formData = new FormData(createForm);
+  const payload = Object.fromEntries(formData.entries());
+  payload.total = Number(payload.total);
+
+  setMessage('Creating order...');
+  try {
+    const response = await fetch('/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Unable to create order');
+
+    createForm.reset();
+    const activeSearch = customerNameInput.value.trim();
+    if (activeSearch) {
+      resultCount.textContent = 'Refreshing';
+      await loadOrders(activeSearch);
+    } else {
+      renderOrders([result.data]);
+      resultCount.textContent = '1 order';
+    }
+    setMessage(`Order ${result.data.id} created successfully.`);
+    createDialog.close();
+  } catch (error) {
     setMessage(error.message, true);
   }
 }
@@ -156,4 +197,11 @@ async function checkHealth() {
 
 form.addEventListener('submit', searchOrders);
 importForm.addEventListener('submit', importOrder);
+createForm.addEventListener('submit', createOrder);
+openCreateDialog.addEventListener('click', () => createDialog.showModal());
+closeCreateDialog.addEventListener('click', () => createDialog.close());
+cancelCreateDialog.addEventListener('click', () => createDialog.close());
+createDialog.addEventListener('click', (event) => {
+  if (event.target === createDialog) createDialog.close();
+});
 checkHealth();
