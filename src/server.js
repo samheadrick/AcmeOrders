@@ -4,6 +4,12 @@ const path = require('node:path');
 
 const app = express();
 const port = Number.parseInt(process.env.PORT || '3000', 10);
+const approvedPartnerHosts = (
+  (process.env.PARTNER_HOSTS || 'partner.example')
+    .split(',')
+    .map((host) => host.trim().toLowerCase())
+    .filter(Boolean)
+);
 
 app.disable('x-powered-by');
 
@@ -43,6 +49,10 @@ app.post('/orders/import', async (request, response) => {
     if (!['http:', 'https:'].includes(partnerUrl.protocol)) throw new Error();
   } catch {
     return response.status(400).json({ error: 'url must be a valid HTTP or HTTPS URL' });
+  }
+
+  if (!approvedPartnerHosts.includes(partnerUrl.hostname.toLowerCase())) {
+    return response.status(400).json({ error: 'url host is not an approved partner' });
   }
 
   let partnerResponse;

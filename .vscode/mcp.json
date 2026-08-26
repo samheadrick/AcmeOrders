@@ -1,5 +1,9 @@
 {
   "servers": {
-
+   "snyk": {
+      "type": "stdio",
+      "command": "snyk",
+      "args": ["mcp", "-t", "stdio"]
+    }
   }
 }

@@ -73,6 +73,48 @@ test('rejects non-HTTP import URLs', async () => {
   assert.equal(result.body.error, 'url must be a valid HTTP or HTTPS URL');
 });
 
+test('rejects localhost import URLs before fetching', async () => {
+  const originalFetch = global.fetch;
+  let fetchCalled = false;
+  global.fetch = async () => {
+    fetchCalled = true;
+    throw new Error('fetch should not be called');
+  };
+
+  try {
+    const result = await request(app)
+      .post('/orders/import')
+      .send({ url: 'http://localhost:8080/orders/42' });
+
+    assert.equal(result.status, 400);
+    assert.equal(result.body.error, 'url host is not an approved partner');
+    assert.equal(fetchCalled, false);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('rejects unapproved partner hosts before fetching', async () => {
+  const originalFetch = global.fetch;
+  let fetchCalled = false;
+  global.fetch = async () => {
+    fetchCalled = true;
+    throw new Error('fetch should not be called');
+  };
+
+  try {
+    const result = await request(app)
+      .post('/orders/import')
+      .send({ url: 'https://unapproved.example/orders/42' });
+
+    assert.equal(result.status, 400);
+    assert.equal(result.body.error, 'url host is not an approved partner');
+    assert.equal(fetchCalled, false);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
 test('searches orders by customer name case-insensitively', async () => {
   const result = await request(app).get('/orders/search?customerName=ada');
 
