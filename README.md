@@ -1,6 +1,6 @@
 # Acme Orders API
 
-A small Node.js and Express API for searching orders by customer name.
+A small Node.js and Express API backed by SQLite for searching orders by customer name.
 
 ## Run
 
@@ -10,6 +10,7 @@ npm start
 ```
 
 The server listens on `http://localhost:3000` by default. Set `PORT` to use a different port.
+The SQLite database is created at `data/orders.db` and is seeded with sample orders on first run.
 
 ## Endpoint
 
