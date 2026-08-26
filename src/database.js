@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const { randomUUID } = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 
 const dataDirectory = path.join(__dirname, '..', 'data');
@@ -15,9 +16,15 @@ database.exec(`
     customer_name TEXT NOT NULL,
     status TEXT NOT NULL,
     total REAL NOT NULL,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    notes TEXT NOT NULL DEFAULT ''
   )
 `);
+
+const columns = database.prepare('PRAGMA table_info(orders)').all();
+if (!columns.some((column) => column.name === 'notes')) {
+  database.exec("ALTER TABLE orders ADD COLUMN notes TEXT NOT NULL DEFAULT ''");
+}
 
 const orderCount = database.prepare('SELECT COUNT(*) AS count FROM orders').get().count;
 
@@ -57,7 +64,8 @@ function searchOrders(customerName) {
       customer_name AS customerName,
       status,
       total,
-      created_at AS createdAt
+      created_at AS createdAt,
+      notes
     FROM orders
     WHERE LOWER(customer_name) LIKE '%' || LOWER(?) || '%' ESCAPE char(92)
     ORDER BY created_at ASC
@@ -66,4 +74,41 @@ function searchOrders(customerName) {
   return rows;
 }
 
-module.exports = { searchOrders };
+function updateOrderNote(orderId, notes) {
+  const result = database.prepare('UPDATE orders SET notes = ? WHERE id = ?').run(notes, orderId);
+  if (result.changes === 0) return null;
+
+  return database.prepare(`
+    SELECT
+      id,
+      customer_name AS customerName,
+      status,
+      total,
+      created_at AS createdAt,
+      notes
+    FROM orders
+    WHERE id = ?
+  `).get(orderId);
+}
+
+function createOrder(order) {
+  const orderId = order.id || `ord-${randomUUID()}`;
+  database.prepare(`
+    INSERT INTO orders (id, customer_name, status, total, created_at, notes)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(orderId, order.customerName, order.status, order.total, order.createdAt, order.notes || '');
+
+  return database.prepare(`
+    SELECT
+      id,
+      customer_name AS customerName,
+      status,
+      total,
+      created_at AS createdAt,
+      notes
+    FROM orders
+    WHERE id = ?
+  `).get(orderId);
+}
+
+module.exports = { searchOrders, updateOrderNote, createOrder };
