@@ -58,6 +58,7 @@ The updated note is returned in `data` and included in subsequent search results
 ```
 
 The partner response may contain the order at the top level or under an `order` property. It must include `customerName`, `status`, `total`, and a valid `createdAt` value. An order ID is generated when the partner does not provide one.
+Partner imports are restricted to exact hostnames in the comma-separated `PARTNER_HOSTS` environment variable. The default approved host is `partner.example`; localhost and loopback addresses are always rejected.
 
 ## Test
 

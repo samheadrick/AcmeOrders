@@ -1,9 +1,21 @@
 const express = require('express');
 const { createOrder, searchOrders, updateOrderNote } = require('./database');
 const path = require('node:path');
+const net = require('node:net');
 
 const app = express();
 const port = Number.parseInt(process.env.PORT || '3000', 10);
+const approvedPartnerHosts = (process.env.PARTNER_HOSTS || 'partner.example')
+  .split(',')
+  .map((host) => host.trim().toLowerCase())
+  .filter(Boolean);
+
+function isLoopbackHost(hostname) {
+  const normalizedHostname = hostname.replace(/^\[|\]$/g, '').toLowerCase();
+  return normalizedHostname === 'localhost' ||
+    normalizedHostname === '::1' ||
+    (net.isIP(normalizedHostname) === 4 && normalizedHostname.startsWith('127.'));
+}
 
 app.disable('x-powered-by');
 
@@ -68,6 +80,11 @@ app.post('/orders/import', async (request, response) => {
     if (!['http:', 'https:'].includes(partnerUrl.protocol)) throw new Error();
   } catch {
     return response.status(400).json({ error: 'url must be a valid HTTP or HTTPS URL' });
+  }
+
+  const hostname = partnerUrl.hostname.toLowerCase();
+  if (isLoopbackHost(hostname) || !approvedPartnerHosts.includes(hostname)) {
+    return response.status(400).json({ error: 'url host is not an approved partner' });
   }
 
   let partnerResponse;
