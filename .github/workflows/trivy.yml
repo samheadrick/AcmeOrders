@@ -2,6 +2,9 @@ name: Trivy dependency scan
 
 on:
   pull_request:
+  push:
+    branches:
+      - demo/trivy-qs-remediation
   workflow_dispatch:
 
 permissions:
