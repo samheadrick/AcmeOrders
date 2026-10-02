@@ -4,6 +4,9 @@
   "private": true,
   "description": "Order-management API with customer-name search",
   "main": "src/server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
     "start": "node src/server.js",
     "test": "node --test"
