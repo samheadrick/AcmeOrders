@@ -21,10 +21,10 @@ jobs:
       pull-requests: write   # post scan results as PR comments
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -38,8 +38,9 @@ jobs:
           namespace: endor-solutions-sheadrick
           # Push to main: monitored scan that updates the project in Endor.
           # Pull request: PR scan that doesn't overwrite main's results.
+          # (No pr_baseline: with PR comments on, endorctl takes the baseline
+          # from the PR's merge target and rejects an explicit one.)
           pr: ${{ github.event_name == 'pull_request' }}
-          pr_baseline: ${{ github.event_name == 'pull_request' && github.base_ref || '' }}
           enable_pr_comments: ${{ github.event_name == 'pull_request' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           scan_dependencies: true
