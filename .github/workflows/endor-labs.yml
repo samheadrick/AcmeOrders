@@ -1,0 +1,53 @@
+name: Endor Labs Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: endor-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  endor-scan:
+    name: Endor Labs scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write        # keyless auth to Endor Labs via GitHub OIDC
+      pull-requests: write   # post scan results as PR comments
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Endor Labs scan
+        uses: endorlabs/github-action@v1
+        with:
+          namespace: endor-solutions-sheadrick
+          # Push to main: monitored scan that updates the project in Endor.
+          # Pull request: PR scan that doesn't overwrite main's results.
+          # (No pr_baseline: with PR comments on, endorctl takes the baseline
+          # from the PR's merge target and rejects an explicit one.)
+          pr: ${{ github.event_name == 'pull_request' }}
+          enable_pr_comments: ${{ github.event_name == 'pull_request' }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          scan_dependencies: true
+          scan_secrets: true
+          scan_summary_output_type: table
+          # Keyless auth is the default (enable_github_action_token: true).
+          # To use an API key instead, add repo secrets and uncomment:
+          # enable_github_action_token: false
+          # api_key: ${{ secrets.ENDOR_API_CREDENTIALS_KEY }}
+          # api_secret: ${{ secrets.ENDOR_API_CREDENTIALS_SECRET }}
