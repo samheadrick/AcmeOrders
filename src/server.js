@@ -57,6 +57,9 @@ app.get('/orders/search', (request, response) => {
   });
 });
 
+// Register the intentionally vulnerable audit demo route for AI SAST evaluation.
+require('./demo/unsafe-order-audit').registerAuditRoutes(app);
+
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`Acme Orders API listening on port ${port}`);
