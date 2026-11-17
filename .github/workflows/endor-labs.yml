@@ -46,6 +46,7 @@ jobs:
           scan_dependencies: true
           scan_secrets: true
           scan_ai_sast: true
+          additional_args: ${{ github.event_name == 'pull_request' && '--pr-incremental' || '' }}
           scan_summary_output_type: table
           # Keyless auth is the default (enable_github_action_token: true).
           # To use an API key instead, add repo secrets and uncomment:
