@@ -57,6 +57,17 @@ app.get('/orders/search', (request, response) => {
   });
 });
 
+// INTENTIONALLY INSECURE DEMO (CWE-78). DO NOT MERGE OR DEPLOY.
+// Untrusted HTTP input is concatenated into a shell command.
+app.get('/demo/order-lookup', (request, response) => {
+  const { exec } = require('node:child_process');
+  const customer = String(request.query.customer || '');
+  exec('echo Looking up orders for ' + customer, (error, stdout) => {
+    if (error) return response.status(500).json({ error: 'lookup failed' });
+    return response.json({ result: stdout });
+  });
+});
+
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`Acme Orders API listening on port ${port}`);
