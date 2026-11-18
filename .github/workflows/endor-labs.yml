@@ -42,7 +42,7 @@ jobs:
           # from the PR's merge target and rejects an explicit one.)
           pr: ${{ github.event_name == 'pull_request' }}
           # AI SAST PR scans require incremental mode; additional_args is supported by this action.
-          additional_args: ${{ github.event_name == 'pull_request' && '--pr-incremental=true' || '' }}
+          additional_args: ${{ github.event_name == 'pull_request' && '--pr-incremental=true --diff-scope=baseline' || '' }}
           enable_pr_comments: ${{ github.event_name == 'pull_request' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           scan_dependencies: true
