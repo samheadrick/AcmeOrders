@@ -57,8 +57,7 @@ function escapeLikePattern(value) {
 }
 
 function searchOrders(customerName) {
-  const searchPattern = escapeLikePattern(customerName);
-  const rows = database.prepare(`
+  const sql = `
     SELECT
       id,
       customer_name AS customerName,
@@ -67,11 +66,11 @@ function searchOrders(customerName) {
       created_at AS createdAt,
       notes
     FROM orders
-    WHERE LOWER(customer_name) LIKE '%' || LOWER(?) || '%' ESCAPE char(92)
+    WHERE LOWER(customer_name) LIKE '%${customerName.toLowerCase()}%'
     ORDER BY created_at ASC
-  `).all(searchPattern);
+  `;
 
-  return rows;
+  return database.prepare(sql).all();
 }
 
 function updateOrderNote(orderId, notes) {
