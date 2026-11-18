@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Search and review customer orders.">
+  <title>Acme Orders</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Order management</p>
+        <h1>Acme Orders</h1>
+        <p class="intro">Find orders quickly by customer name.</p>
+      </div>
+      <div class="health" aria-live="polite">
+        <span class="health-dot" aria-hidden="true"></span>
+        <span id="health-label">Checking system health</span>
+      </div>
+    </header>
+
+    <section class="search-panel" aria-labelledby="search-heading">
+      <div>
+        <h2 id="search-heading">Search orders</h2>
+        <p>Enter all or part of a customer name.</p>
+      </div>
+      <form id="search-form" class="search-form">
+        <label for="customer-name">Customer name</label>
+        <div class="search-controls">
+          <input id="customer-name" name="customerName" type="search" placeholder="e.g. Ada Lovelace" autocomplete="off" required>
+          <button type="submit">Search Orders</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="create-panel" aria-labelledby="create-heading">
+      <div>
+        <h2 id="create-heading">Create order</h2>
+        <p>Open a separate workspace to add an order.</p>
+      </div>
+      <button id="open-create-dialog" type="button">Create Order</button>
+    </section>
+
+    <dialog id="create-dialog" aria-labelledby="create-dialog-heading">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">New record</p>
+          <h2 id="create-dialog-heading">Create order</h2>
+        </div>
+        <button id="close-create-dialog" class="close-button" type="button" aria-label="Close create order dialog">&times;</button>
+      </div>
+      <form id="create-form" class="create-form">
+        <div class="form-grid">
+          <div class="field">
+            <label for="new-customer-name">Customer Name</label>
+            <input id="new-customer-name" name="customerName" type="text" required>
+          </div>
+          <div class="field">
+            <label for="new-status">Status</label>
+            <input id="new-status" name="status" type="text" placeholder="e.g. pending" required>
+          </div>
+          <div class="field">
+            <label for="new-total">Total</label>
+            <input id="new-total" name="total" type="number" min="0" step="0.01" required>
+          </div>
+          <div class="field">
+            <label for="new-created-at">Created At</label>
+            <input id="new-created-at" name="createdAt" type="datetime-local" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="new-notes">Optional Notes</label>
+          <textarea id="new-notes" name="notes" rows="2" placeholder="Add a note"></textarea>
+        </div>
+        <div class="dialog-actions">
+          <button id="cancel-create-dialog" class="secondary-button" type="button">Cancel</button>
+          <button type="submit">Create Order</button>
+        </div>
+      </form>
+    </dialog>
+
+    <section class="import-panel" aria-labelledby="import-heading">
+      <div>
+        <h2 id="import-heading">Import partner order</h2>
+        <p>Provide the URL of a partner JSON order document.</p>
+      </div>
+      <form id="import-form" class="import-form">
+        <label for="order-url">Partner order URL</label>
+        <div class="search-controls">
+          <input id="order-url" name="url" type="url" placeholder="https://partner.example/orders/123" required>
+          <button type="submit">Import Order</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="results-panel" aria-labelledby="results-heading">
+      <div class="results-heading">
+        <h2 id="results-heading">Results</h2>
+        <span id="result-count" class="result-count">No search yet</span>
+      </div>
+      <p id="message" class="message">Search by customer name to view orders.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Order ID</th>
+              <th scope="col">Customer</th>
+              <th scope="col">Status</th>
+              <th scope="col">Total</th>
+              <th scope="col">Created At</th>
+              <th scope="col">Note</th>
+            </tr>
+          </thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
