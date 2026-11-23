@@ -1,0 +1,13 @@
+version: 1.0.0
+ignore:
+  - id: endorignore-1
+    username: sheadrick@endor.ai
+    update_time: 2026-11-23 22:24:22 UTC
+    finding_name: 'CVE-2026-110910: qs.stringify with allowEmptyArrays does not encode the keys of empty arrays, allowing query string parameter injection'
+    parent_name: npm://acme-orders-api@1.0.0
+    dependency_name: npm://qs@6.15.3
+    vuln_id: CVE-2026-110910
+    extra_key: CVE-2026-110910
+    reason: risk-accepted
+    expiration_date: 2026-12-23
+    comments: 'Temporary exception for DEMO: for test purposes only. Mitigations: None. Owner: sheadrick@endor.ai. Tracking: N/A. Reassess by 2026-12-23.'
