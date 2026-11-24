@@ -19,6 +19,7 @@ jobs:
       contents: read
       id-token: write        # keyless auth to Endor Labs via GitHub OIDC
       pull-requests: write   # post scan results as PR comments
+      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -41,6 +42,7 @@ jobs:
           # (No pr_baseline: with PR comments on, endorctl takes the baseline
           # from the PR's merge target and rejects an explicit one.)
           pr: ${{ github.event_name == 'pull_request' }}
+          pr_incremental: ${{ github.event_name == 'pull_request' }}
           enable_pr_comments: ${{ github.event_name == 'pull_request' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           scan_dependencies: true
